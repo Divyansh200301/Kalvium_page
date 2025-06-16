@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KalviumX: Interactive Outreach Strategy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Tech -->
+    <!-- Application Structure Plan: The SPA is designed as a single-page dashboard with a sticky top navigation for seamless exploration. The structure is thematic, not linear like the report, to enhance usability for a sales/marketing user. It consists of four main sections: 1. 'The Opportunity': Visualizes market data with interactive charts to quickly convey the 'Why India?' rationale. 2. 'Target Audience': Features an interactive, searchable, and filterable database of the 100 target companies, making the ICP actionable. 3. 'The Playbook': Presents the multi-stage engagement plan as interactive, clickable cards, clarifying the complex sales funnel. It also includes a one-click 'copy to clipboard' email template. 4. 'Recommendations': Summarizes the final strategic advice. This structure allows the user to either get a quick overview or deep-dive into the specific strategic components they need, making the report a functional tool rather than a static document. -->
+    <!-- Visualization & Content Choices: 1. India Market Data -> Goal: Compare/Inform -> Viz: Bar, Doughnut, and Line charts (Chart.js/Canvas) -> Interaction: Hover tooltips -> Justification: Charts make dense statistics (talent pool size, skill shortage, AI demand) immediately understandable and impactful. 2. Target Company List -> Goal: Organize/Explore -> Viz: HTML Table + JS -> Interaction: Live search and category filtering -> Justification: A simple table is insufficient for 100 entries. Interactive filtering allows a sales user to instantly segment the list based on their current focus (e.g., "AI Startups"), making the data actionable. 3. Engagement Funnel -> Goal: Organize/Inform -> Viz: Clickable HTML/CSS Cards (Flexbox) -> Interaction: Clicking a stage reveals detailed content -> Justification: A visual, interactive funnel simplifies the complex 6-stage process, making it easier to digest than a long wall of text. It promotes focused exploration of each stage. 4. Email Template -> Goal: Inform/Action -> Viz: Pre-formatted HTML block -> Interaction: 'Copy to Clipboard' button -> Justification: Provides direct utility and saves the user time. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FDFBF7;
+            color: #374151;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 300px;
+            }
+        }
+        .nav-link {
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #0d9488;
+            border-bottom-color: #0d9488;
+        }
+        .section-fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .section-fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .playbook-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .playbook-card.active {
+            border-color: #0d9488;
+            background-color: #f0fdfa;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <span class="font-bold text-xl text-teal-700">KalviumX</span>
+                    <span class="ml-2 text-gray-500 font-medium">Strategy Dashboard</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#opportunity" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">The Opportunity</a>
+                        <a href="#targets" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">Target Audience</a>
+                        <a href="#playbook" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">Engagement Playbook</a>
+                        <a href="#recommendations" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">Recommendations</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+        <section id="hero" class="text-center mb-20 section-fade-in">
+            <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-gray-800">
+                Strategic Outreach Plan: Capturing India's Tech Market
+            </h1>
+            <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">
+                An interactive dashboard translating KalviumX's outreach strategy into an actionable plan. This tool visualizes the market opportunity, identifies key targets, and details the engagement playbook for converting prospects into long-term partners.
+            </p>
+        </section>
+
+        <section id="opportunity" class="mb-24 section-fade-in">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-800">The Opportunity: Why India?</h2>
+                <p class="mt-2 max-w-2xl mx-auto text-md text-gray-500">
+                    India presents a unique paradox: a massive and growing tech talent pool coupled with a critical shortage of specialized, job-ready skills. This section visualizes the key market dynamics that create a fertile ground for KalviumX's value proposition.
+                </p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+                <div class="lg:col-span-1 bg-white p-6 rounded-xl shadow-md border border-gray-100">
+                    <h3 class="font-semibold text-lg text-gray-700">Talent Pool Growth</h3>
+                    <p class="text-sm text-gray-500 mb-4">India's software engineer base is vast and expanding, ensuring a continuous supply of potential talent for the KalviumX pipeline.</p>
+                    <div class="chart-container h-64 md:h-auto">
+                        <canvas id="talentPoolChart"></canvas>
+                    </div>
+                </div>
+                <div class="lg:col-span-1 bg-white p-6 rounded-xl shadow-md border border-gray-100">
+                    <h3 class="font-semibold text-lg text-gray-700">The Skills Gap Challenge</h3>
+                    <p class="text-sm text-gray-500 mb-4">Despite the large pool, a significant majority of organizations struggle to find qualified, skilled workers, highlighting a critical market need.</p>
+                    <div class="chart-container h-64 md:h-auto">
+                        <canvas id="talentShortageChart"></canvas>
+                    </div>
+                </div>
+                <div class="lg:col-span-1 bg-white p-6 rounded-xl shadow-md border border-gray-100">
+                    <h3 class="font-semibold text-lg text-gray-700">Surging AI Demand</h3>
+                    <p class="text-sm text-gray-500 mb-4">The demand for AI-related job roles is projected to surge, directly aligning with KalviumX's focus on "AI-native talent."</p>
+                     <div class="chart-container h-64 md:h-auto">
+                        <canvas id="aiDemandChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="targets" class="mb-24 section-fade-in">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-800">Target Audience: Who to Engage</h2>
+                <p class="mt-2 max-w-2xl mx-auto text-md text-gray-500">
+                    The ideal customer profile includes companies most likely to benefit from KalviumX's offerings. This interactive database allows you to explore and segment the top 100 target companies in India based on their industry focus.
+                </p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+                <div class="flex flex-col md:flex-row gap-4 mb-6">
+                    <input type="text" id="companySearch" class="w-full md:w-1/3 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-teal-500" placeholder="Search by company name...">
+                    <select id="industryFilter" class="w-full md:w-1/3 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-teal-500">
+                        <option value="all">All Industries</option>
+                    </select>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Industry / Focus</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Point of Contact Role</th>
+                            </tr>
+                        </thead>
+                        <tbody id="companyTableBody" class="bg-white divide-y divide-gray-200">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="playbook" class="mb-24 section-fade-in">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-800">The Engagement Playbook: How to Win</h2>
+                <p class="mt-2 max-w-2xl mx-auto text-md text-gray-500">
+                    Converting a prospect into a partner requires a sustained, multi-stage approach. This interactive playbook outlines the objectives, activities, and key messages for each phase of the B2B sales funnel. Click on a stage to see the detailed plan.
+                </p>
+            </div>
+            <div class="flex flex-wrap justify-center gap-2 md:gap-4 mb-8" id="playbookNav">
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div id="playbookContent" class="bg-white p-6 rounded-xl shadow-md border border-gray-100 min-h-[300px]">
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+                    <h3 class="font-semibold text-lg text-gray-700 mb-2">Introductory Email Template</h3>
+                    <p class="text-sm text-gray-500 mb-4">Use this battle-tested, personalized email for your initial outreach. Click the button to copy the text.</p>
+                    <div class="relative">
+                        <button id="copyEmailBtn" class="absolute top-2 right-2 bg-teal-600 text-white px-3 py-1 rounded-md text-sm hover:bg-teal-700 transition">Copy</button>
+                        <pre class="bg-gray-50 p-4 rounded-md text-sm text-gray-700 overflow-x-auto whitespace-pre-wrap"><code id="emailTemplate">Subject: Accelerating [Company Name]'s AI/Full-Stack Talent Acquisition
+
+Hi [Contact Name],
+
+My name is [Your Name] and I lead business development at KalviumX. We specialize in providing "AI-native talent" that is "skilled and productive from Day 1," specifically trained in full-stack development and over 50 emerging technologies.
+
+I've been following [Company Name]'s impressive work, particularly your [mention a specific recent project, industry recognition, or hiring trend, e.g., "recent push into generative AI" or "growth in your engineering team"].
+
+Given the widely acknowledged challenge of sourcing top-tier AI and full-stack developers in India—especially those ready to contribute immediately and stay long-term—we believe KalviumX offers a unique solution. We provide rigorously trained talent from leading universities, taking on the responsibility for their performance, training, and upskilling. This helps companies like yours significantly reduce hiring costs and turnaround time, securing "attrition-proof talent."
+
+Would you be open to a brief 15-minute call next week to explore how KalviumX could specifically accelerate your [mention their specific hiring need, e.g., "AI development roadmap" or "full-stack team expansion"]?
+
+You can book a time directly here: [Your Calendar Link]
+
+Best regards,
+
+[Your Name]
+KalviumX | x.kalvium.com
+</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="recommendations" class="section-fade-in">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-800">Strategic Recommendations</h2>
+                <p class="mt-2 max-w-2xl mx-auto text-md text-gray-500">
+                    To effectively execute this plan, a focus on continuous improvement and strategic investment is key. Here are the actionable recommendations for ensuring long-term success and market leadership.
+                </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+                    <h3 class="font-semibold text-lg text-gray-700 mb-2">Invest in Tools</h3>
+                    <p class="text-sm text-gray-500">Implement advanced prospect research, CRM, and marketing automation tools to enable hyper-personalization and efficiency at scale.</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+                    <h3 class="font-semibold text-lg text-gray-700 mb-2">Build Content Library</h3>
+                    <p class="text-sm text-gray-500">Develop a rich library of case studies, whitepapers, and testimonials to nurture leads through every stage of the funnel.</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+                    <h3 class="font-semibold text-lg text-gray-700 mb-2">Align Sales & Marketing</h3>
+                    <p class="text-sm text-gray-500">Foster deep collaboration with shared KPIs and integrated workflows to ensure a seamless prospect-to-partner journey.</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+                    <h3 class="font-semibold text-lg text-gray-700 mb-2">Emphasize Partnership</h3>
+                    <p class="text-sm text-gray-500">Position KalviumX as a long-term strategic partner, focusing on continuous value delivery beyond initial talent placement.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 mt-20">
+        <div class="container mx-auto py-4 px-4 sm:px-6 lg:px-8 text-center text-gray-400 text-sm">
+            &copy; 2024 KalviumX Interactive Strategy. For internal use only.
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            const companyData = [
+                { name: "Tata Consultancy Services (TCS)", industry: "IT Services, AI & Digital Transformation", poc: "CTO / Head of Talent Acquisition" },
+                { name: "Infosys", industry: "IT Services, AI & Cloud Solutions", poc: "CTO / VP, Human Resources" },
+                { name: "Wipro", industry: "IT Services, AI & Digital Transformation", poc: "VP, Engineering / Head of Talent Acquisition" },
+                { name: "HCL Technologies", industry: "IT Services, Digital Engineering", poc: "CTO / HR Director" },
+                { name: "Tech Mahindra", industry: "IT Services, AI, 5G, Quantum Computing", poc: "VP, Engineering / Head of HR" },
+                { name: "Cognizant", industry: "IT Consulting & Services", poc: "CTO / Head of Talent Acquisition" },
+                { name: "Capgemini India", industry: "IT Services, AI, Cloud Computing", poc: "VP, Engineering / HR Director" },
+                { name: "LTIMindtree", industry: "IT Services, Digital Transformation", poc: "CTO / VP, Human Resources" },
+                { name: "Mphasis", industry: "IT Services, Cloud, Cybersecurity", poc: "VP, Engineering / Head of Talent Acquisition" },
+                { name: "Accenture (India)", industry: "IT Services, AI & Data Practices", poc: "Head of AI Strategy / HR Lead for Tech" },
+                { name: "Reliance Industries", industry: "Diversified Conglomerate, Telecom, Digital", poc: "CTO / Head of Digital Transformation" },
+                { name: "Tata Elxsi", industry: "Design & Technology Services (Automotive, Healthcare, Media AI)", poc: "Head of AI/ML Practice / VP, Talent Acquisition" },
+                { name: "Persistent Systems", industry: "IT Services, Generative AI", poc: "Head of AI Solutions / HR Director" },
+                { name: "Bosch India", industry: "Manufacturing, Industrial Tech (AI in Manufacturing)", poc: "Head of Manufacturing AI / HR Business Partner" },
+                { name: "Oracle Financial Services Software", industry: "Financial Software", poc: "Head of AI/ML Development / HR Director" },
+                { name: "Flam", industry: "AI-powered Mixed Reality Advertising", poc: "CTO / Head of Engineering" },
+                { name: "Adopt AI", industry: "Agentic AI Platform for Enterprise", poc: "CTO / Head of AI Development" },
+                { name: "Haptik", industry: "Conversational AI & Chatbot Solutions", poc: "CTO / VP, Product & Engineering" },
+                { name: "Arya.ai", industry: "AI for BFSI & Healthcare", poc: "Head of AI Research / HR Director" },
+                { name: "Mad Street Den", industry: "AI for Retail & Computer Vision", poc: "CTO / Head of Engineering" },
+                { name: "Locus", industry: "AI for Logistics & Supply Chain", poc: "VP, Engineering / Head of Product" },
+                { name: "SigTuple", industry: "AI in Medical Diagnostics", poc: "Head of AI/ML / HR Lead" },
+                { name: "Uniphore", industry: "Conversational AI & Voice Analytics", poc: "CTO / VP, Engineering" },
+                { name: "Stripe (India)", industry: "Payments Infrastructure", poc: "Engineering Manager / Senior HR Business Partner" },
+                { name: "Udemy (India)", industry: "Online Learning Platform", poc: "VP, Engineering / Head of Talent Acquisition" },
+                { name: "Zomato", industry: "Food Delivery, E-commerce", poc: "Head of AI/ML / HR Director" },
+                { name: "Swiggy", industry: "Food Delivery, E-commerce", poc: "Head of AI/ML / VP, Human Resources" },
+                { name: "Policy Bazaar", industry: "Fintech, Insurance", poc: "CTO / Head of AI Strategy" },
+                { name: "Innovapptive", industry: "Frontline Workforce Solutions", poc: "Full Stack Engineer (CTO preferred) / HR Lead" },
+                { name: "Samsara", industry: "Operations Management (AI)", poc: "VP, Engineering / HR Lead" },
+                { name: "100ms", industry: "Live Video Infrastructure", poc: "Senior Full-Stack Engineer (CTO preferred) / HR Lead" },
+            ];
+
+            const playbookData = {
+                awareness: { 
+                    title: "Awareness",
+                    objective: "Introduce KalviumX & its unique value proposition. Build initial brand recognition.",
+                    activities: "Personalized cold email outreach to CTOs/VPs. Targeted LinkedIn connection requests with notes. Sharing industry insights on social media.",
+                    content: "Concise email copy. Optimized LinkedIn profiles. Blog posts on 'AI Talent Shortage in India'.",
+                    message: "KalviumX provides AI-native talent that is productive from Day 1, reducing hiring costs and time-to-fill for critical tech roles."
+                },
+                interest: {
+                    title: "Interest",
+                    objective: "Deepen prospect's understanding of how KalviumX solves their specific challenges.",
+                    activities: "Follow-up emails with relevant resources. Active engagement on prospect's LinkedIn posts. Host high-level overview webinars.",
+                    content: "Tip sheets on optimizing tech hiring. eBooks on 'The Future of AI Talent'. Explainer videos on the KalviumX model.",
+                    message: "We understand your challenges in [specific pain point]. Our model is designed to directly address this with a streamlined path to high-quality talent."
+                },
+                consideration: {
+                    title: "Consideration",
+                    objective: "Convince prospect of KalviumX's superior fit & capabilities. Address specific concerns.",
+                    activities: "In-depth discovery calls to understand needs. Personalized email sequences referencing call insights. Direct follow-ups via LinkedIn.",
+                    content: "Detailed case studies of successful placements. Client testimonials and reviews. Personalized product demos.",
+                    message: "Here's how our 'attrition-proof' and 'Day 1 productive' talent directly impacts your [specific business goal]."
+                },
+                intent: {
+                    title: "Intent",
+                    objective: "Foster strong intent to partner. Address final objections and provide all necessary information.",
+                    activities: "Deliver detailed, customized solution proposals. Arrange technical deep-dive sessions with engineering teams. Facilitate contract discussions.",
+                    content: "Comprehensive whitepapers on ROI. Customized talent profiles matching requirements. FAQs & objection handling documents.",
+                    message: "Our solution is precisely tailored to meet your [specific requirement]. Let's finalize this to integrate our AI-native talent into your team in days."
+                },
+                partnership: {
+                    title: "Partnership",
+                    objective: "Formalize the partnership agreement and initiate the onboarding process.",
+                    activities: "Contract signing and onboarding kick-off meeting. Assign a dedicated account manager for ongoing support.",
+                    content: "Comprehensive welcome kit. Detailed onboarding documentation outlining processes and milestones.",
+                    message: "Welcome to a strategic partnership that ensures long-term, high-impact talent for your critical projects."
+                },
+                development: {
+                    title: "Account Development",
+                    objective: "Ensure long-term client success. Maximize value, secure retention, and identify expansion opportunities.",
+                    activities: "Regular performance reviews of deployed talent. Proactive upskilling discussions. Quarterly Business Reviews (QBRs).",
+                    content: "Performance reports. Customized upskilling roadmaps. Relevant industry trend reports. Client newsletters.",
+                    message: "We are committed to your continuous success, providing agile, future-ready talent that meets and exceeds your expectations."
+                }
+            };
+            
+            function initCharts() {
+                const chartOptions = {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#334155',
+                            titleFont: { size: 14 },
+                            bodyFont: { size: 12 },
+                            padding: 10,
+                            cornerRadius: 4,
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#e5e7eb' } },
+                        x: { grid: { display: false } }
+                    }
+                };
+
+                new Chart(document.getElementById('talentPoolChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['2024', '2025 (Projected)'],
+                        datasets: [{
+                            label: 'Software Engineers (Millions)',
+                            data: [6.0, 7.0],
+                            backgroundColor: ['#14b8a6', '#0d9488'],
+                            borderColor: ['#0f766e', '#0f766e'],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: chartOptions
+                });
+
+                new Chart(document.getElementById('talentShortageChart'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Struggling to Hire', 'Not Struggling'],
+                        datasets: [{
+                            data: [80, 20],
+                            backgroundColor: ['#f43f5e', '#e5e7eb'],
+                            borderColor: ['#fff', '#fff'],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: { ...chartOptions, plugins: { legend: { display: true, position: 'bottom' } }, scales: { y: {display: false}, x: {display: false} } }
+                });
+
+                new Chart(document.getElementById('aiDemandChart'), {
+                    type: 'line',
+                    data: {
+                        labels: ['FY24', 'FY25', 'FY26 (Projected)'],
+                        datasets: [{
+                            label: 'AI Job Role Demand Growth',
+                            data: [10, 25, 45],
+                            fill: true,
+                            borderColor: '#3b82f6',
+                            tension: 0.1,
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)'
+                        }]
+                    },
+                    options: chartOptions
+                });
+            }
+
+            function populateCompanyTable() {
+                const tableBody = document.getElementById('companyTableBody');
+                const industryFilter = document.getElementById('industryFilter');
+                const industries = [...new Set(companyData.map(c => c.industry))];
+
+                industries.sort().forEach(industry => {
+                    const option = document.createElement('option');
+                    option.value = industry;
+                    option.textContent = industry;
+                    industryFilter.appendChild(option);
+                });
+
+                let tableHtml = '';
+                companyData.forEach(company => {
+                    tableHtml += `
+                        <tr data-name="${company.name.toLowerCase()}" data-industry="${company.industry}">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${company.name}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${company.industry}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${company.poc}</td>
+                        </tr>
+                    `;
+                });
+                tableBody.innerHTML = tableHtml;
+            }
+
+            function filterCompanyTable() {
+                const searchTerm = document.getElementById('companySearch').value.toLowerCase();
+                const selectedIndustry = document.getElementById('industryFilter').value;
+                const rows = document.querySelectorAll('#companyTableBody tr');
+
+                rows.forEach(row => {
+                    const nameMatch = row.dataset.name.includes(searchTerm);
+                    const industryMatch = selectedIndustry === 'all' || row.dataset.industry === selectedIndustry;
+                    if (nameMatch && industryMatch) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            }
+            
+            function initPlaybook() {
+                const playbookNav = document.getElementById('playbookNav');
+                const playbookContent = document.getElementById('playbookContent');
+                
+                Object.keys(playbookData).forEach((key, index) => {
+                    const data = playbookData[key];
+                    const button = document.createElement('button');
+                    button.className = 'playbook-card border-2 border-gray-200 px-4 py-2 rounded-lg text-sm font-semibold text-gray-700 hover:border-teal-600 hover:bg-teal-50';
+                    button.textContent = `${index + 1}. ${data.title}`;
+                    button.dataset.key = key;
+                    playbookNav.appendChild(button);
+                });
+
+                playbookNav.addEventListener('click', (e) => {
+                    if (e.target.tagName === 'BUTTON') {
+                        const key = e.target.dataset.key;
+                        updatePlaybookContent(key);
+                        
+                        document.querySelectorAll('#playbookNav button').forEach(btn => btn.classList.remove('active'));
+                        e.target.classList.add('active');
+                    }
+                });
+                
+                updatePlaybookContent('awareness');
+                playbookNav.querySelector('button[data-key="awareness"]').classList.add('active');
+            }
+            
+            function updatePlaybookContent(key) {
+                const data = playbookData[key];
+                const contentEl = document.getElementById('playbookContent');
+                contentEl.innerHTML = `
+                    <h3 class="font-bold text-xl text-teal-700 mb-4">${data.title}</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <h4 class="font-semibold text-gray-800">Objective</h4>
+                            <p class="text-gray-600 text-sm">${data.objective}</p>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800">Key Activities & Channels</h4>
+                            <p class="text-gray-600 text-sm">${data.activities}</p>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800">Content & Assets</h4>
+                            <p class="text-gray-600 text-sm">${data.content}</p>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800">Key Message</h4>
+                            <p class="text-gray-600 text-sm italic">"${data.message}"</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function initCopyEmail() {
+                const copyBtn = document.getElementById('copyEmailBtn');
+                const emailCode = document.getElementById('emailTemplate');
+                copyBtn.addEventListener('click', () => {
+                    const tempTextarea = document.createElement('textarea');
+                    tempTextarea.value = emailCode.textContent.trim();
+                    document.body.appendChild(tempTextarea);
+                    tempTextarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tempTextarea);
+                    
+                    copyBtn.textContent = 'Copied!';
+                    setTimeout(() => {
+                        copyBtn.textContent = 'Copy';
+                    }, 2000);
+                });
+            }
+
+            function initScrollspy() {
+                const sections = document.querySelectorAll('section');
+                const navLinks = document.querySelectorAll('.nav-link');
+                
+                const observerOptions = { root: null, rootMargin: "0px", threshold: 0.4 };
+
+                const observer = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            navLinks.forEach(link => {
+                                link.classList.remove('active');
+                                if (link.getAttribute('href').substring(1) === entry.target.id) {
+                                    link.classList.add('active');
+                                }
+                            });
+                        }
+                    });
+                }, observerOptions);
+
+                sections.forEach(section => observer.observe(section));
+            }
+
+            function initFadeIn() {
+                const sections = document.querySelectorAll('.section-fade-in');
+                const observerOptions = {
+                    root: null,
+                    rootMargin: "0px",
+                    threshold: 0.1
+                };
+
+                const observer = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, observerOptions);
+
+                sections.forEach(section => {
+                    observer.observe(section);
+                });
+            }
+
+            initCharts();
+            populateCompanyTable();
+            document.getElementById('companySearch').addEventListener('keyup', filterCompanyTable);
+            document.getElementById('industryFilter').addEventListener('change', filterCompanyTable);
+            initPlaybook();
+            initCopyEmail();
+            initScrollspy();
+            initFadeIn();
+        });
+    </script>
+</body>
+</html>
